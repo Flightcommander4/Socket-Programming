@@ -1,2 +1,6 @@
 # Socket-Programming
 Socket Programming - Anonymizer Function Using TCP and UDP
+
+Using two different Data Transfer Methods, both stock TCP and UDP, are being implemented with both a client and server side which will communicate with each other through a socket. Stock TCP uses a reliable data transfer method of streaming the data through the socket, and in return the server will stream the data back.  As for the UDP transfer, this was implemented with a Stop-And-Wait method, in which the data was split up into chunks of 1000 bytes, and were sent one at a time, with each chunk waiting for an Acknowledgment from the server before sending.
+
+The main function of these programs is to anonymize a keyword inside of a file specified by the user.  The user can connect using any IP / Port , and will first be able to upload a '.txt' file to the server, they then can choose a keyword to "anonymize" inside of that file, meaning the word they chose, if found in the file they uploaded, will be converted into a string of "X's" of the same length.  The user can then download the updated file, which will have the same name + 'anon.txt'.  The user can then quit if they wish, which will disconnect the user (client-side) from the server and the socket.
