@@ -3,13 +3,13 @@
 #Importing Libraries
 from os import read
 import socket
-import threading
 import sys
+import re
 
 #Defining Variables and Other Useful Information
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
-PORT = 12150 #int(sys.argv[1])
+PORT = int(sys.argv[1])
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "Disconnected"
@@ -22,16 +22,25 @@ DISCONNECT_MESSAGE = "Disconnected"
 #  Availability: https://www.youtube.com/watch?v=3QiPPX-KeSc&ab_channel=TechWithTim
 #*************************************************************************************
 
+#************************************************************************************************************************************
+#  Stack Overflow Links Used for Guidance:
+#  Reading in Binary: https://stackoverflow.com/questions/1035340/reading-binary-file-and-looping-over-each-byte
+#  Error Help: https://stackoverflow.com/questions/16130786/why-am-i-getting-the-error-connection-refused-in-python-sockets/16130819
+#  UDP Help: https://stackoverflow.com/questions/27893804/udp-client-server-socket-in-python
+#  TCP Help: https://stackoverflow.com/questions/27241804/sending-a-file-over-tcp-sockets-in-python
+#************************************************************************************************************************************
+
 #Creating a new Socket, and Defining the Method of Streaming the Data.  As well as binding the 
 #server to the given address and port
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
+server.bind(('', PORT))
 
 #Start the server when the program is executed
 def start():
     server.listen() #Server will be listening on the specified IP
-    print(f"Server is Listening on {''}")
+    print(f"Server is Listening on {socket.gethostbyname(socket.gethostname())}...")
     
+    #Accepts the connection from the client
     conn, addr = server.accept()
     print("[Active Connections: 1]")
     print("Waiting for file...")
@@ -60,22 +69,23 @@ def start():
 
             #Taking the received data, and replacing the found keyword in the data with "X's" as to
             #anonymize the file with the associated keyword
-            keywordFile = keywordFile.replace(keyword, 'X'*len(keyword))
+            keywordFile = re.sub(keyword, 'X'*len(keyword), keywordFile, flags=re.IGNORECASE)
             print("Your File has been Anonymized!")
-            conn.send(keywordFile.encode(FORMAT))
+            
 
+        #When the user enters get, the target file is downloaded by the client
         if userCommand == 'get':
-            #Waits for the Disconnect Message
+            #Sends the anonymized file
+            conn.send(keywordFile.encode(FORMAT))
             print("Waiting for client...")
 
+        #When the user enters quit, the client will disconnect and the server must know about this
         if userCommand == 'quit':
             disconnectMsg = conn.recv(2048).decode(FORMAT)
             print(disconnectMsg)
             print('User has Disconnected')
             #Close the connection to the socket and exit the program
-
-        
-        
-
+    
+#Starting the server...
 print("Starting Server...")
 start()
